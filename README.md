@@ -17,4 +17,5 @@ Server was created for next tasks:
   - to managment of games (create, delete, continue the game etc.);
   - to send actual data to particulr player in real time;
 In another words the aim of server side to provides whol life cikel of the game without rendering and into additionl of this to managments of connections.
+
 All of these feature were implemented with the help Spring Boot and WebSockets.
