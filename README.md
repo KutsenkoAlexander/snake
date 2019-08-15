@@ -1,6 +1,5 @@
 # Snake game
 This is the famous Snake game with some additional.
-
 One important feature that is multiplayer game for two person. Thous for implement of this I made server side and client side. 
 
 # Client side
