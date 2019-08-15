@@ -2,7 +2,7 @@
 This is the famous Snake game with some additional features. One important feature that this is multiplayer game for two person. Thous for implement of this I made server side and client side of the game.
 
 ### Client side
-Client side is Java Swing, which role just to renders elements of the game. Here is no any logic of calculation position snakes or apple. Client just gets necessary JSON (replica of whole the game) and according of these data just renders game elements on the game field. For implementing the feature to receive JSON data in real time I used WebSockets.
+Client side is Java Swing, which role just to renders elements of the game. Here is no any logic of calculation position, movements snakes and apple. Client gets necessary JSON  data (this is replica of whole the game) and according of these data, client renders game elements on the game field. Also client sends the chosen direction of the player's snake to the server. For this I use still the same JSON where set special topic of the message for this. For implementing the feature to receive JSON data in real time I used WebSockets.
 
 ### Server side
 Server was created for next tasks:
