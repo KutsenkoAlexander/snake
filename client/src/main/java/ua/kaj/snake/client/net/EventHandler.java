@@ -34,8 +34,6 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
         JsonNode jsonNode = getJsonNode(msg.getData());
         Replica replica = fromJson(jsonNode.asText(), Replica.class);
 
-//        log.info(""+replica);
-
         if (msg.getTopic().equals(MOVE) && replica.isInGame()) {
             GameField.getInstance().actionGame(replica);
         } else if (msg.getTopic().equals(START) && !replica.isInGame()) {

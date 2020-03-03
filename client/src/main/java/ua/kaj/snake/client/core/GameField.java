@@ -77,16 +77,16 @@ public class GameField extends JPanel implements ActionListener {
     }
 
     public void initGame(@NotNull Replica replica) {
-        if (replica != null) {
-            appleDto = replica.getApple();
-            if (snakeDtos.isEmpty()) {
-                snakeDtos.addAll(replica.getSnakeDtos());
-            }
-            inGame = true;
-            btnStart.setVisible(false);
-        } else {
+        if (replica == null) {
             log.info("Method initGame(Replica replica). Replica was NULL.");
+            throw new IllegalArgumentException("Method initGame(Replica replica). Replica was NULL.");
         }
+        appleDto = replica.getApple();
+        if (snakeDtos.isEmpty()) {
+            snakeDtos.addAll(replica.getSnakeDtos());
+        }
+        inGame = true;
+        btnStart.setVisible(false);
     }
 
     private void startGame() {
@@ -106,14 +106,14 @@ public class GameField extends JPanel implements ActionListener {
     }
 
     public void actionGame(@NotNull Replica replica) {
-        if (replica != null) {
-            appleDto = replica.getApple();
-            snakeDtos.set(0, replica.getSnakeDtos().get(0));
-            snakeDtos.set(1, replica.getSnakeDtos().get(1));
-            repaint();
-        } else {
+        if (replica == null) {
             log.info("Method actionGame(Replica replica). Replica was NULL.");
+            throw new IllegalArgumentException("Method actionGame(Replica replica). Replica was NULL.");
         }
+        appleDto = replica.getApple();
+        snakeDtos.set(0, replica.getSnakeDtos().get(0));
+        snakeDtos.set(1, replica.getSnakeDtos().get(1));
+        repaint();
     }
 
     @Override
