@@ -10,7 +10,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class Connection {
     private static final Logger log = getLogger(Connection.class);
 
-    private static final String uri = "ws://localhost:8080/events";
+    private static final String uri = "ws://localhost:8808/events";
     private static final Connection instance = new Connection();
 
     private static StandardWebSocketClient client = new StandardWebSocketClient();

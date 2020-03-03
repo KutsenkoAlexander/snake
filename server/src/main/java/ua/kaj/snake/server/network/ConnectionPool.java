@@ -6,11 +6,13 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import ua.kaj.snake.server.entity.Player;
 import ua.kaj.snake.server.service.GameSession;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -37,7 +39,8 @@ public class ConnectionPool {
     }
 
     public void broadcast(@NotNull String msg, GameSession game) {
-        game.getPlayers().parallelStream().forEach(p -> send(p.getSession(), msg));
+        CountDownLatch countDownLatch = new CountDownLatch(2);
+        game.getPlayers().forEach(player -> new PlayerThread(countDownLatch, player, msg).start());
     }
 
     public void add(@NotNull WebSocketSession session, @NotNull String player) {
@@ -48,5 +51,33 @@ public class ConnectionPool {
 
     public void remove(WebSocketSession session) {
         pool.remove(session);
+    }
+
+
+    private class PlayerThread extends Thread {
+        private final CountDownLatch countDownLatch;
+        private final Player player;
+        private String msg;
+
+        public PlayerThread(CountDownLatch countDownLatch, Player player, String msg) {
+            this.countDownLatch = countDownLatch;
+            this.player = player;
+            this.msg = msg;
+        }
+
+        @Override
+        public void run() {
+            try {
+                runUnsafe();
+            } catch (InterruptedException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        private void runUnsafe() throws InterruptedException {
+            countDownLatch.countDown();
+            countDownLatch.await();
+            send(player.getSession(), msg);
+        }
     }
 }
