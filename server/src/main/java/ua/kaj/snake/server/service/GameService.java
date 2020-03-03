@@ -1,7 +1,6 @@
 package ua.kaj.snake.server.service;
 
 import org.slf4j.Logger;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 import ua.kaj.snake.server.entity.Player;
@@ -14,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
-@Scope("singleton")
 public class GameService {
     private static final Logger log = getLogger(GameService.class);
 
