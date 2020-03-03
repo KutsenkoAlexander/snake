@@ -2,6 +2,7 @@ package ua.kaj.snake.server.entity;
 
 import org.slf4j.Logger;
 import ua.kaj.snake.server.enums.Direction;
+import ua.kaj.snake.server.exceptions.SnakeNotFountException;
 import ua.kaj.snake.server.service.GameSession;
 
 import javax.validation.constraints.NotNull;
@@ -12,7 +13,8 @@ import java.util.Random;
 import static org.slf4j.LoggerFactory.getLogger;
 import static ua.kaj.snake.server.enums.Direction.*;
 import static ua.kaj.snake.server.enums.DotSize.DOT_SIZE;
-import static ua.kaj.snake.server.enums.SizeField.*;
+import static ua.kaj.snake.server.enums.SizeField.SIZE_X;
+import static ua.kaj.snake.server.enums.SizeField.SIZE_Y;
 
 public class Snake {
     private static final Logger log = getLogger(Snake.class);
@@ -118,9 +120,13 @@ public class Snake {
         }
     }
 
-    public void collision(@NotNull GameSession game) {
+    public void collision(@NotNull GameSession game) throws SnakeNotFountException {
         if (game.isInGame()) {
-            Snake rival = game.getPlayers().stream().filter(p -> !this.equals(p.getSnake())).findFirst().get().getSnake();
+            Snake rival = game.getPlayers().stream()
+                    .filter(p -> !this.equals(p.getSnake()))
+                    .map(Player::getSnake)
+                    .findFirst()
+                    .orElseThrow(SnakeNotFountException::new);
             for (int j = rival.getSize() - 1; j >= 0; j--) {
                 if (x.get(SNAKE_HEAD_POSITION).equals(rival.getX().get(j)) && y.get(SNAKE_HEAD_POSITION).equals(rival.getY().get(j))) {
                     game.setInGame(false);

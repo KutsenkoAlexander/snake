@@ -12,6 +12,8 @@ import ua.kaj.snake.server.entity.Snake;
 import ua.kaj.snake.server.entity.builder.Director;
 import ua.kaj.snake.server.entity.builder.SnakeDownBuilder;
 import ua.kaj.snake.server.entity.builder.SnakeUpBuilder;
+import ua.kaj.snake.server.exceptions.PlayerNotFoundException;
+import ua.kaj.snake.server.exceptions.SnakeNotFountException;
 import ua.kaj.snake.server.network.ConnectionPool;
 
 import javax.validation.constraints.NotNull;
@@ -123,8 +125,11 @@ public class GameSession implements Tickable, Comparable<Tickable>, Runnable {
         this.inGame = inGame;
     }
 
-    public Player getPlayerBySession(@NotNull WebSocketSession session) {
-        return players.stream().filter(p -> p.getSession().equals(session)).findFirst().get();
+    public Player getPlayerBySession(@NotNull WebSocketSession session) throws PlayerNotFoundException {
+        return players.stream()
+                .filter(p -> p.getSession().equals(session))
+                .findFirst()
+                .orElseThrow(PlayerNotFoundException::new);
     }
 
     @Override
@@ -134,7 +139,11 @@ public class GameSession implements Tickable, Comparable<Tickable>, Runnable {
         players.forEach(player -> {
             if (inGame) {
                 Snake snake = player.getSnake();
-                snake.collision(this);
+                try {
+                    snake.collision(this);
+                } catch (SnakeNotFountException e) {
+                    log.error(e.getMessage());
+                }
                 snake.eatApple(apple);
                 snake.move();
                 snakeDtos.add(new SnakeDto(snake.getX(), snake.getY(), snake.getDirection()));

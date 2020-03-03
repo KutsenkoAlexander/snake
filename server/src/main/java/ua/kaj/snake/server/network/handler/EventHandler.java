@@ -10,9 +10,12 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import ua.kaj.snake.server.dto.Message;
 import ua.kaj.snake.server.dto.Replica;
+import ua.kaj.snake.server.entity.Player;
 import ua.kaj.snake.server.entity.Snake;
 import ua.kaj.snake.server.enums.Direction;
 import ua.kaj.snake.server.enums.Topic;
+import ua.kaj.snake.server.exceptions.PlayerNotFoundException;
+import ua.kaj.snake.server.exceptions.WebSocketSessionException;
 import ua.kaj.snake.server.network.ConnectionPool;
 import ua.kaj.snake.server.service.GameService;
 import ua.kaj.snake.server.service.GameSession;
@@ -46,11 +49,15 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
     }
 
     @Override
-    protected void handleTextMessage(@NotNull WebSocketSession session, @NotNull TextMessage message) {
+    protected void handleTextMessage(@NotNull WebSocketSession session, @NotNull TextMessage message) throws PlayerNotFoundException {
         Message msg = fromJson(message.getPayload(), Message.class);
 
         if (msg.getTopic().equals(Topic.START)) {
-            gameService.connect(session);
+            try {
+                gameService.connect(session);
+            } catch (WebSocketSessionException e) {
+                log.error(e.getMessage());
+            }
             if (gameService.canStartGame(session)) {
                 GameSession game = gameService.getActiveGameBySession(session);
                 game.setConnectionPool(connectionPool);
@@ -101,10 +108,13 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
 
             gameService.disconnected(game, session);
 
-            Replica r = new Replica();
-            r.setInGame(false);
-            Message msg = new Message(Topic.STOP, toJson(r));
-            connectionPool.send(game.getPlayers().stream().findFirst().get().getSession(), toJson(msg));
+            Replica replica = new Replica();
+            replica.setInGame(false);
+            Message msg = new Message(Topic.STOP, toJson(replica));
+            connectionPool.send(game.getPlayers().stream()
+                    .map(Player::getSession)
+                    .findFirst()
+                    .orElseThrow(WebSocketSessionException::new), toJson(msg));
         }
 
         if (gameService.getPendingGameBySession(session) != null) {
